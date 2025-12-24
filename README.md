@@ -1,4 +1,4 @@
-# eterseeker
+## eterseeker
 
 **ETERNIVERSE** — interaktywna mapa uniwersum książek *EterSeeker*.
 
