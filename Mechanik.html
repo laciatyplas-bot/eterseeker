@@ -1,22 +1,26 @@
+
 <!doctype html>
 <html lang="pl">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,
-initial-scale=1">
-  <title>MAPA ETERNIVERSE — Centrum Ksiąg v2.1</title>
-  <meta name="description" content="Centralny interfejs Architekta. 
-Wszystkie Bramy i księgi w jednym, 
-czytelnym widoku. Persystencja, sortowanie, 
-eksport CSV.">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MAPA ETERNIVERSE — Centrum Ksiąg</title>
+  <meta name="description" content="Centralny interfejs Architekta. Wszystkie Bram i księgi w jednym, czytelnym widoku.">
+
+  <!-- (opcjonalnie) Firebase – jeśli chcesz sync w chmurze -->
+  <!--
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  -->
 
   <style>
     :root{
       --bg:#050814;
       --card:#0A1727;
-      --card-soft:#0F2138;
+      --card-soft:#0D1C30;
       --text:#E9F4FF;
-      --muted:#A0B8D6;
+      --muted:#9BA9C8;
       --border:#20324A;
       --gold:#D9A441;
       --teal:#28D3C6;
@@ -24,924 +28,627 @@ eksport CSV.">
       --orange:#FFB14B;
       --red:#FF6B6B;
       --gray:#8B8FA0;
-      --purple:#9B6BFF;
-      --pink:#FF9FF3;
-      --blue:#5DADE2;
-      --shadow:0 12px 40px rgba(0,0,0,0.5);
     }
     *{box-sizing:border-box;margin:0;padding:0;}
     body{
-      background: radial-gradient(circle at 30% 20%, #15223A 0%, #050814 60%, #01030A 100%);
+      background: radial-gradient(circle at top, #15223A 0%, #050814 55%, #01030A 100%);
       color:var(--text);
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       min-height:100vh;
-      line-height:1.6;
     }
     .wrap{
-      max-width:1440px;
+      max-width:1200px;
       margin:0 auto;
-      padding:40px 24px 80px;
+      padding:32px 16px 40px;
     }
     header{
-      text-align:center;
-      margin-bottom:48px;
+      margin-bottom:24px;
     }
     h1{
-      font-size:42px;
-      letter-spacing:5px;
+      font-size:32px;
+      letter-spacing:3px;
       text-transform:uppercase;
       color:var(--gold);
-      margin-bottom:12px;
-      text-shadow:0 6px 20px rgba(217,164,65,0.3);
     }
     .subtitle{
+      margin-top:8px;
       color:var(--muted);
-      font-size:17px;
-      max-width:720px;
-      margin:0 auto;
-      line-height:1.7;
+      font-size:14px;
     }
-    .stats{
-      display:flex;
-      justify-content:center;
-      gap:28px;
-      margin-top:28px;
-      flex-wrap:wrap;
-    }
-    .stat{
-      background:var(--card-soft);
-      padding:16px 24px;
-      border-radius:16px;
-      border:1px solid var(--border);
-      text-align:center;
-      min-width:120px;
-    }
-    .stat-value{font-size:28px;font-weight:800;color:var(--gold);line-height:1;}
-    .stat-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-top:6px;}
-
     .toolbar{
       display:flex;
       flex-wrap:wrap;
-      gap:16px;
-      margin:36px 0 32px;
+      gap:10px;
+      margin-top:18px;
       align-items:center;
-      background:var(--card-soft);
-      padding:20px 24px;
-      border-radius:18px;
-      border:1px solid var(--border);
     }
     .search{
-      flex:1 1 300px;
+      flex:1 1 220px;
       position:relative;
     }
     .search input{
       width:100%;
-      padding:14px 16px 14px 48px;
-      border-radius:14px;
+      padding:9px 12px;
+      border-radius:10px;
       border:1px solid var(--border);
       background:#050B16;
       color:var(--text);
-      font-size:15px;
-      transition:border-color 0.2s;
-    }
-    .search input:focus{
-      outline:none;
-      border-color:var(--gold);
-      box-shadow:0 0 0 3px rgba(217,164,65,0.2);
-    }
-    .search::before{
-      content:"🔍";
-      position:absolute;
-      left:18px;top:50%;
-      transform:translateY(-50%);
-      color:var(--muted);
-      font-size:16px;
+      font-size:13px;
     }
     .toolbar select,
     .toolbar button{
-      border-radius:14px;
+      border-radius:10px;
       border:1px solid var(--border);
-      padding:14px 18px;
-      font-size:15px;
+      padding:9px 12px;
+      font-size:13px;
       background:#050B16;
       color:var(--text);
       cursor:pointer;
-      transition:all 0.3s;
     }
     .toolbar button.main{
-      background:linear-gradient(135deg,var(--gold),#E9B949);
+      background:var(--gold);
       color:#02030A;
-      font-weight:800;
+      font-weight:700;
       border:none;
-      box-shadow:0 6px 20px rgba(217,164,65,0.4);
     }
-    .toolbar button.main:hover{background:linear-gradient(135deg,#E9B949,#D9A441);transform:translateY(-2px);}
-    .toolbar button.danger{background:var(--red);color:#fff;}
-    .toolbar button.success{background:var(--green);color:#fff;}
+    .toolbar button.main:hover{
+      filter:brightness(1.03);
+    }
 
     .grid{
       display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(360px,1fr));
-      gap:28px;
-      margin-top:24px;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      gap:14px;
+      margin-top:20px;
     }
     .brama-card{
       background:var(--card);
-      border-radius:22px;
+      border-radius:14px;
       border:1px solid var(--border);
-      padding:28px;
+      padding:14px 14px 10px;
       display:flex;
       flex-direction:column;
-      min-height:320px;
-      transition:all 0.4s ease;
-      position:relative;
-      overflow:hidden;
-    }
-    .brama-card:hover{
-      transform:translateY(-8px);
-      box-shadow:var(--shadow);
-      border-color:var(--gold);
+      min-height:200px;
     }
     .brama-header{
       display:flex;
       justify-content:space-between;
       align-items:flex-start;
-      margin-bottom:20px;
-      padding-bottom:16px;
-      border-bottom:1px solid rgba(255,255,255,0.1);
+      margin-bottom:10px;
     }
     .brama-title{
-      font-size:20px;
-      font-weight:800;
-      color:var(--text);
-      letter-spacing:0.5px;
-    }
-    .brama-sub{
-      font-size:13px;
-      text-transform:uppercase;
-      letter-spacing:1px;
-      color:var(--muted);
-      margin-top:8px;
-      line-height:1.4;
-    }
-    .badge{
-      font-size:12px;
-      padding:8px 16px;
-      border-radius:30px;
-      background:rgba(217,164,65,0.2);
-      color:var(--gold);
-      text-transform:uppercase;
-      letter-spacing:1px;
+      font-size:14px;
       font-weight:700;
     }
+    .brama-sub{
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:0.06em;
+      color:var(--muted);
+      margin-top:4px;
+    }
+    .badge{
+      font-size:10px;
+      padding:3px 8px;
+      border-radius:999px;
+      background:rgba(217,164,65,0.15);
+      color:var(--gold);
+      text-transform:uppercase;
+      letter-spacing:0.06em;
+      white-space:nowrap;
+    }
     .books{
-      flex:1;
+      margin-top:6px;
+      border-top:1px solid rgba(255,255,255,0.06);
+      padding-top:8px;
       display:flex;
       flex-direction:column;
-      gap:12px;
-      overflow-y:auto;
-      max-height:500px;
-      padding-right:6px;
+      gap:6px;
+      flex:1;
+      overflow:hidden;
     }
     .book{
       background:var(--card-soft);
-      border-radius:14px;
-      padding:16px;
-      border:1px solid rgba(255,255,255,0.08);
+      border-radius:10px;
+      padding:7px 8px;
+      border:1px solid rgba(255,255,255,0.04);
       display:flex;
-      gap:16px;
-      align-items:center;
+      gap:8px;
+      align-items:flex-start;
       cursor:pointer;
-      transition:all 0.3s;
+      transition:background 0.15s,border-color 0.15s,transform 0.1s;
+      position:relative;
     }
     .book:hover{
-      background:#14263F;
-      border-color:rgba(217,164,65,0.5);
-      transform:translateX(6px);
+      background:#0F2138;
+      border-color:rgba(217,164,65,0.35);
+      transform:translateY(-1px);
     }
     .book-cover-thumb{
-      width:48px;
-      height:70px;
-      border-radius:8px;
+      width:28px;
+      height:40px;
+      border-radius:4px;
       flex-shrink:0;
-      background:linear-gradient(135deg,#1A2338,#101624);
+      background:#101624;
       background-size:cover;
       background-position:center;
-      border:1px solid rgba(255,255,255,0.15);
+      border:1px solid rgba(255,255,255,0.08);
       display:flex;
       align-items:center;
       justify-content:center;
-      font-size:11px;
+      font-size:9px;
       color:var(--gray);
-      font-weight:700;
-      position:relative;
-      overflow:hidden;
-    }
-    .book-cover-thumb::after{
-      content:attr(data-initials);
-      font-size:10px;
-      font-weight:800;
-      background:linear-gradient(135deg,var(--gold),#E9B949);
-      -webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;
     }
     .book-main{
       flex:1;
       min-width:0;
     }
     .book-title{
-      font-size:15px;
-      font-weight:700;
-      margin-bottom:6px;
+      font-size:12px;
+      font-weight:600;
+      margin-bottom:2px;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
-      color:var(--text);
     }
     .book-meta{
-      font-size:12px;
+      font-size:10px;
       color:var(--muted);
       display:flex;
       justify-content:space-between;
       align-items:center;
     }
     .status{
-      font-size:11px;
-      padding:6px 14px;
-      border-radius:20px;
+      font-size:9px;
+      padding:2px 6px;
+      border-radius:999px;
       text-transform:uppercase;
-      letter-spacing:0.8px;
-      font-weight:800;
+      letter-spacing:0.06em;
+      font-weight:700;
     }
-    .st-published{background:rgba(18,198,91,0.3);color:var(--green);}
-    .st-ready{background:rgba(217,164,65,0.3);color:var(--gold);}
-    .st-writing{background:rgba(40,211,198,0.3);color:var(--teal);}
-    .st-draft{background:rgba(255,177,75,0.3);color:var(--orange);}
-    .st-idea{background:rgba(139,143,160,0.4);color:var(--gray);}
+    .st-published{background:rgba(18,198,91,0.2);color:var(--green);}
+    .st-ready{background:rgba(217,164,65,0.2);color:var(--gold);}
+    .st-writing{background:rgba(40,211,198,0.2);color:var(--teal);}
+    .st-draft{background:rgba(255,177,75,0.2);color:var(--orange);}
+    .st-idea{background:rgba(139,143,160,0.25);color:var(--gray);}
 
     .no-books{
-      font-size:14px;
+      font-size:11px;
       color:var(--muted);
-      padding:40px 16px;
-      text-align:center;
-      font-style:italic;
-      opacity:0.7;
+      padding:6px 4px 2px;
     }
 
-    /* Modal */
+    /* Panel dodawania księgi */
     .modal-backdrop{
-      position:fixed;inset:0;background:rgba(0,0,0,0.85);
+      position:fixed;inset:0;background:rgba(0,0,0,0.65);
       display:none;align-items:center;justify-content:center;z-index:2000;
-      backdrop-filter:blur(8px);
     }
     .modal{
-      background:var(--card);
-      border-radius:24px;
+      background:#050B16;
+      border-radius:18px;
       border:1px solid var(--border);
-      padding:32px;
-      max-width:520px;
-      width:92%;
-      box-shadow:var(--shadow);
+      padding:18px 18px 16px;
+      max-width:420px;
+      width:100%;
+      box-shadow:0 24px 80px rgba(0,0,0,0.9);
+      font-size:13px;
     }
     .modal h2{
-      font-size:22px;
-      margin-bottom:24px;
-      color:var(--gold);
-      text-align:center;
+      font-size:15px;
+      margin-bottom:10px;
     }
     .modal-row{
-      margin-bottom:20px;
+      margin-bottom:8px;
     }
     .modal label{
       display:block;
-      font-size:13px;
+      font-size:11px;
       color:var(--muted);
-      margin-bottom:8px;
-      font-weight:600;
-      text-transform:uppercase;
-      letter-spacing:0.5px;
+      margin-bottom:3px;
     }
     .modal input,
-    .modal select,
-    .modal textarea{
+    .modal select{
       width:100%;
-      padding:14px 16px;
-      border-radius:12px;
+      padding:7px 9px;
+      border-radius:9px;
       border:1px solid var(--border);
       background:#050B16;
       color:var(--text);
-      font-size:15px;
+      font-size:12px;
     }
-    .modal textarea{height:100px;resize:vertical;}
     .modal-actions{
       display:flex;
       justify-content:flex-end;
-      gap:16px;
-      margin-top:28px;
-      padding-top:20px;
-      border-top:1px solid var(--border);
+      gap:8px;
+      margin-top:6px;
+    }
+    .modal button{
+      border-radius:999px;
+      padding:6px 12px;
+      border:1px solid var(--border);
+      font-size:12px;
+      cursor:pointer;
+      background:#050B16;
+      color:var(--text);
+    }
+    .modal button.primary{
+      background:var(--teal);
+      color:#020308;
+      border:none;
+      font-weight:600;
     }
 
-    /* Cover preview */
+    /* Podgląd okładki na cały ekran */
     .cover-preview{
       position:fixed;inset:0;
-      background:rgba(0,0,0,0.95);
+      background:rgba(0,0,0,0.85);
       display:none;
       align-items:center;
       justify-content:center;
       z-index:2100;
-      backdrop-filter:blur(12px);
     }
     .cover-preview img{
       max-width:90vw;
       max-height:90vh;
-      border-radius:16px;
-      box-shadow:0 40px 100px rgba(0,0,0,0.8);
+      border-radius:10px;
+      box-shadow:0 20px 60px rgba(0,0,0,0.9);
     }
     .cover-preview-close{
       position:fixed;
-      top:32px;right:32px;
-      font-size:32px;
+      top:14px;right:18px;
+      font-size:24px;
       cursor:pointer;
       color:#eee;
-      width:56px;
-      height:56px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      border-radius:50%;
-      background:rgba(255,255,255,0.15);
-      backdrop-filter:blur(10px);
     }
-
-    /* Toast */
-    .toast{
-      position:fixed;
-      top:32px;right:32px;
-      background:var(--green);
-      color:#fff;
-      padding:18px 28px;
-      border-radius:16px;
-      font-weight:700;
-      font-size:15px;
-      transform:translateX(120%);
-      transition:transform 0.4s ease;
-      z-index:3000;
-      box-shadow:var(--shadow);
-    }
-    .toast.show{transform:translateX(0);}
 
     @media (max-width:768px){
-      .wrap{padding:32px 16px 60px;}
-      h1{font-size:36px;}
+      header{padding-top:18px;}
       .toolbar{flex-direction:column;align-items:stretch;}
-      .toolbar > * {width:100%;}
-      .stats{gap:20px;}
-      .grid{grid-template-columns:1fr;gap:24px;}
-      .brama-card{padding:24px;}
+      .toolbar button, .toolbar select{width:100%;}
     }
   </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>🌌 MAPA ETERNIVERSE</h1>
+    <h1>MAPA ETERNIVERSE</h1>
     <div class="subtitle">
-      Centralny interfejs Architekta Woli • Maciej Maciuszek<br>
-      Zarządzaj Bramami i księgami • Persystencja • Sortowanie • Eksport CSV
+      Centralny interfejs Architekta Woli (Maciej Maciuszek). Szukaj, filtruj, zarządzaj stanem ksiąg.
+      Każdy tytuł może mieć swoją okładkę i status wydawniczy.
     </div>
-    <div class="stats" id="stats"></div>
+
+    <div class="toolbar">
+      <div class="search">
+        <input type="text" id="searchInput" placeholder="Szukaj tytułu, tagu, opisu...">
+      </div>
+      <select id="gateFilter">
+        <option value="all">Wszystkie bramy</option>
+      </select>
+      <select id="statusFilter">
+        <option value="all">Wszystkie statusy</option>
+        <option value="published">Opublikowane</option>
+        <option value="ready">Gotowe</option>
+        <option value="writing">W trakcie pisania</option>
+        <option value="draft">Szkic</option>
+        <option value="idea">Idea</option>
+      </select>
+      <button class="main" id="addBookBtn">+ Dodaj księgę</button>
+    </div>
   </header>
 
-  <div class="toolbar">
-    <div class="search">
-      <input type="text" id="searchInput" placeholder="Szukaj tytułu, opisu, statusu, tagu...">
-    </div>
-    <select id="gateFilter">
-      <option value="all">🌀 Wszystkie Bramy</option>
-    </select>
-    <select id="statusFilter">
-      <option value="all">📊 Wszystkie statusy</option>
-      <option value="published">✅ Opublikowane</option>
-      <option value="ready">🟡 Gotowe</option>
-      <option value="writing">✍️ W pisaniu</option>
-      <option value="draft">📝 Szkic</option>
-      <option value="idea">💡 Pomysł</option>
-    </select>
-    <button class="main" id="addBookBtn">+ Nowa księga</button>
-    <button class="success" id="exportBtn">📤 Eksport CSV</button>
-    <button class="danger" id="resetBtn">🗑️ Reset danych</button>
-  </div>
-
   <main>
-    <section class="grid" id="gatesGrid"></section>
+    <section class="grid" id="gatesGrid">
+      <!-- Karty bram + księgi wypełni JS -->
+    </section>
   </main>
 </div>
 
-<!-- Modal -->
+<!-- Modal dodawania księgi -->
 <div class="modal-backdrop" id="addModal">
   <div class="modal">
-    <h2>🌟 Nowa / Edytuj księgę</h2>
+    <h2>Nowa księga</h2>
     <div class="modal-row">
-      <label>🎯 Brama</label>
+      <label>Brama</label>
       <select id="modalGate"></select>
     </div>
     <div class="modal-row">
-      <label>📖 Tytuł</label>
+      <label>Tytuł</label>
       <input id="modalTitle" placeholder="np. InterSeeker – Atlas Wewnętrzny">
     </div>
     <div class="modal-row">
-      <label>📝 Opis / notatki (opcjonalnie)</label>
-      <textarea id="modalDesc" placeholder="Krótki opis, tagi, linki..."></textarea>
-    </div>
-    <div class="modal-row">
-      <label>📊 Status</label>
+      <label>Status</label>
       <select id="modalStatus">
-        <option value="idea">💡 Pomysł</option>
-        <option value="draft">📝 Szkic</option>
-        <option value="writing">✍️ W pisaniu</option>
-        <option value="ready">🟡 Gotowa</option>
-        <option value="published">✅ Opublikowana</option>
+        <option value="idea">Idea</option>
+        <option value="draft">Szkic</option>
+        <option value="writing">W trakcie pisania</option>
+        <option value="ready">Gotowe</option>
+        <option value="published">Opublikowane</option>
       </select>
     </div>
     <div class="modal-row">
-      <label>🖼️ URL okładki (opcjonalnie)</label>
-      <input id="modalCover" placeholder="https://...jpg">
+      <label>URL okładki (Wattpad / Canva / gdziekolwiek)</label>
+      <input id="modalCover" placeholder="https://…">
     </div>
     <div class="modal-actions">
       <button id="modalCancel">Anuluj</button>
-      <button class="main" id="modalSave">💾 Zapisz</button>
+      <button class="primary" id="modalSave">Zapisz</button>
     </div>
   </div>
 </div>
 
-<!-- Cover preview -->
+<!-- Podgląd okładki -->
 <div class="cover-preview" id="coverPreview">
-  <div class="cover-preview-close" id="coverClose">×</div>
+  <span class="cover-preview-close" id="coverClose">×</span>
   <img id="coverImg" src="" alt="Okładka księgi">
 </div>
 
-<!-- Toast -->
-<div class="toast" id="toast">Zapisano!</div>
-
 <script>
-  // ===== DANE DOMYŚLNE =====
-  const DEFAULT_DATA = [ /* ... Twoje dane z poprzedniej wersji (bez zmian) ... */ ];
+  // ===== Dane Bram i Ksiąg (na start można trzymać tylko tutaj) =====
+  const DATA = [
+    {
+      id:1,
+      name:"BRAMA I — INTERSEEKER",
+      sub:"Psychika · Cień · Trauma · Archetyp",
+      tag:"CORE / PSYCHE",
+      color:"#28D3C6",
+      books:[
+        {title:"InterSeeker – Atlas Wewnętrzny",status:"published",cover:""},
+        {title:"ShadowSeeker – Anatomia Cienia",status:"ready",cover:""},
+        {title:"MemorySeeker – Archeologia Wspomnień",status:"draft",cover:""}
+      ]
+    },
+    {
+      id:2,
+      name:"BRAMA II — CUSTOS / GENEZA",
+      sub:"Strażnik · Rdzeń · Początek",
+      tag:"CORE / ORIGIN",
+      color:"#FF6B6B",
+      books:[
+        {title:"Geneza",status:"ready",cover:""},
+        {title:"Custos: Kodeks Głębi",status:"idea",cover:""}
+      ]
+    },
+    {
+      id:3,
+      name:"BRAMA III — ETERSEEKER",
+      sub:"Wola · Pole · Architektura",
+      tag:"CORE / FIELD",
+      color:"#D9A441",
+      books:[
+        {title:"EterSeeker – Księga Zakazana (Tom Zero)",status:"writing",cover:""},
+        {title:"EterSeeker – Architektura Woli",status:"idea",cover:""}
+      ]
+    },
+    {
+      id:4,
+      name:"BRAMA IV — ARCHETYPY / WOLA",
+      sub:"Konstrukcja · Role · Przeznaczenie",
+      tag:"CORE / WILL",
+      color:"#9B6BFF",
+      books:[
+        {title:"ArchetypSeeker – System Archetypów Eteru",status:"idea",cover:""},
+        {title:"Kronika Woli",status:"idea",cover:""}
+      ]
+    },
+    {
+      id:5,
+      name:"BRAMA V — OBFITOSEEKER",
+      sub:"Materia · Przepływ · Manifestacja",
+      tag:"EMBODIED / FLOW",
+      color:"#12C65B",
+      books:[
+        {title:"ObfitoSeeker – Kod Obfitości",status:"published",cover:""},
+        {title:"MateriaSeeker – Przewodnik Ciała i Przepływu",status:"draft",cover:""}
+      ]
+    },
+    {
+      id:6,
+      name:"BRAMA VI — BIOSEEKER",
+      sub:"Ciało · Biologia · Regulacja",
+      tag:"EMBODIED / BIO",
+      color:"#FFB14B",
+      books:[
+        {title:"BioSeeker – Sekret Biologii Pola",status:"idea",cover:""}
+      ]
+    },
+    {
+      id:7,
+      name:"BRAMA VII — SPLĄTANIE / AI",
+      sub:"Obserwator · Meta-tożsamość · Technologia",
+      tag:"META / TECH",
+      color:"#5DADE2",
+      books:[
+        {title:"SplatanieSeeker – Protokół Obserwatora",status:"idea",cover:""},
+        {title:"InterfejsSeeker – Interfejs Świadomości",status:"idea",cover:""}
+      ]
+    },
+    {
+      id:8,
+      name:"BRAMA VIII — TRAJEKTORIE",
+      sub:"Kod Życia · Linie Czasu · Fizyka Duszy",
+      tag:"META / PHYSICS",
+      color:"#FF9FF3",
+      books:[
+        {title:"TrajektoriaSeeker – Mapa Linii Życia",status:"ready",cover:""},
+        {title:"QuantumSeeker – Fizyka Duszy",status:"idea",cover:""}
+      ]
+    },
+    {
+      id:9,
+      name:"BRAMA IX — ETERNIONY / KOLEKTYW",
+      sub:"Węzły Pola · Wspólnota · Misja",
+      tag:"COLLECTIVE",
+      color:"#667eea",
+      books:[
+        {title:"Eteriony – Tom I",status:"idea",cover:""},
+        {title:"Eteriony – Tom II",status:"idea",cover:""}
+      ]
+    },
+    {
+      id:10,
+      name:"BRAMA X — ETERUNIVERSE",
+      sub:"Integracja · Jedność · Architekt",
+      tag:"INTEGRATION",
+      color:"#D9A441",
+      books:[
+        {title:"Architekt Eteru — Manifest Twórcy",status:"writing",cover:""},
+        {title:"Mapa Uniwersum Eteru",status:"idea",cover:""}
+      ]
+    }
+  ];
 
-  // ===== ZMIENNE =====
-  let DATA = [];
-  const STORAGE_KEY = 'eterniverse-data-v2.1';
-  const elements = { /* ... wszystkie elementy jak wcześniej ... */ };
+  const gatesGrid   = document.getElementById('gatesGrid');
+  const gateFilter  = document.getElementById('gateFilter');
+  const statusFilter= document.getElementById('statusFilter');
+  const searchInput = document.getElementById('searchInput');
 
-  // ===== INICJALIZACJA =====
-  function init() {
-    loadData();
-    populateFilters();
+  const addModal    = document.getElementById('addModal');
+  const modalGate   = document.getElementById('modalGate');
+  const modalTitle  = document.getElementById('modalTitle');
+  const modalStatus = document.getElementById('modalStatus');
+  const modalCover  = document.getElementById('modalCover');
+
+  const coverPreview= document.getElementById('coverPreview');
+  const coverImg    = document.getElementById('coverImg');
+
+  // wypełnij selecty bram
+  DATA.forEach(b => {
+    const opt1 = document.createElement('option');
+    opt1.value = b.id;
+    opt1.textContent = b.name;
+    gateFilter.appendChild(opt1);
+
+    const opt2 = document.createElement('option');
+    opt2.value = b.id;
+    opt2.textContent = b.name;
+    modalGate.appendChild(opt2);
+  });
+
+  function statusClass(st){
+    switch(st){
+      case 'published': return 'st-published';
+      case 'ready':     return 'st-ready';
+      case 'writing':   return 'st-writing';
+      case 'draft':     return 'st-draft';
+      default:          return 'st-idea';
+    }
+  }
+
+  function render(){
+    const q = searchInput.value.toLowerCase().trim();
+    const gate = gateFilter.value;
+    const st   = statusFilter.value;
+
+    gatesGrid.innerHTML = '';
+
+    DATA.forEach(brama => {
+      if(gate !== 'all' && String(brama.id) !== gate) return;
+
+      const card = document.createElement('article');
+      card.className = 'brama-card';
+
+      card.innerHTML = `
+        <div class="brama-header">
+          <div>
+            <div class="brama-title">${brama.name}</div>
+            <div class="brama-sub">${brama.sub}</div>
+          </div>
+          <span class="badge">${brama.tag}</span>
+        </div>
+      `;
+
+      const booksWrap = document.createElement('div');
+      booksWrap.className = 'books';
+
+      const filteredBooks = brama.books.filter(book => {
+        if(st !== 'all' && book.status !== st) return false;
+        if(!q) return true;
+        return (book.title || '').toLowerCase().includes(q);
+      });
+
+      if(!filteredBooks.length){
+        const info = document.createElement('div');
+        info.className = 'no-books';
+        info.textContent = 'Brak tytułów w tym filtrze.';
+        booksWrap.appendChild(info);
+      }else{
+        filteredBooks.forEach(book => {
+          const el = document.createElement('div');
+          el.className = 'book';
+          el.innerHTML = `
+            <div class="book-cover-thumb" style="${book.cover ? `background-image:url('${book.cover}')` : ''}">
+              ${book.cover ? '' : 'okładka'}
+            </div>
+            <div class="book-main">
+              <div class="book-title">${book.title}</div>
+              <div class="book-meta">
+                <span>${book.status || 'idea'}</span>
+                <span class="status ${statusClass(book.status)}">${(book.status || 'idea').toUpperCase()}</span>
+              </div>
+            </div>
+          `;
+          // klik w miniaturę → pełna okładka
+          const thumb = el.querySelector('.book-cover-thumb');
+          if(book.cover){
+            thumb.addEventListener('click', (ev) => {
+              ev.stopPropagation();
+              coverImg.src = book.cover;
+              coverPreview.style.display = 'flex';
+            });
+          }
+          booksWrap.appendChild(el);
+        });
+      }
+
+      card.appendChild(booksWrap);
+      gatesGrid.appendChild(card);
+    });
+  }
+
+  // filter events
+  [searchInput, gateFilter, statusFilter].forEach(el => {
+    el.addEventListener('input', render);
+    el.addEventListener('change', render);
+  });
+
+  // modal add book
+  document.getElementById('addBookBtn').onclick = () => {
+    modalTitle.value = '';
+    modalCover.value = '';
+    modalStatus.value = 'idea';
+    addModal.style.display = 'flex';
+  };
+  document.getElementById('modalCancel').onclick = () => {
+    addModal.style.display = 'none';
+  };
+  document.getElementById('modalSave').onclick = () => {
+    const gateId = Number(modalGate.value);
+    const title  = modalTitle.value.trim();
+    if(!title) return;
+    const status = modalStatus.value;
+    const cover  = modalCover.value.trim();
+
+    const brama = DATA.find(b => b.id === gateId);
+    if(!brama) return;
+
+    brama.books.push({title,status,cover});
+    addModal.style.display = 'none';
     render();
-    bindEvents();
-    updateStats();
-  }
+    // tu ewentualnie: zapisz do localStorage / Firebase
+  };
 
-  // ===== PERSYSTENCJA =====
-  function loadData() {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      DATA = saved ? JSON.parse(saved) : structuredClone(DEFAULT_DATA);
-    } catch(e) {
-      console.warn('Błąd ładowania:', e);
-      DATA = structuredClone(DEFAULT_DATA);
-    }
-  }
+  // podgląd okładki
+  document.getElementById('coverClose').onclick = () => {
+    coverPreview.style.display = 'none';
+    coverImg.src = '';
+  };
+  coverPreview.addEventListener('click', () => {
+    coverPreview.style.display = 'none';
+    coverImg.src = '';
+  });
 
-  function saveData() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
-  }
-{
-  "titles": [
-    {
-      "id": 1,
-      "title": "InterSeeker – Atlas Wewnętrzny",
-      "hook": "Wejdź tam, gdzie nawet twoje myśli boją się wejść.",
-      "pitch": "Podróż w głąb psyche, która rozbiera cię do kości i zmusza, byś zobaczył, kim naprawdę jesteś."
-    },
-    {
-      "id": 2,
-      "title": "ShadowSeeker – Anatomia Cienia",
-      "hook": "Twój cień zna cię lepiej niż ty.",
-      "pitch": "Księga, która pokazuje, że to, czego w sobie nienawidzisz, jest jedyną drogą do twojej pełnej mocy."
-    },
-    {
-      "id": 3,
-      "title": "MemorySeeker – Archeologia Wspomnień",
-      "hook": "Przeszłość nie śpi — tylko czeka, aż ją otworzysz.",
-      "pitch": "Rozprawa z pamięcią, która decyduje o tym, kim zostaniesz, zanim zdążysz o tym pomyśleć."
-    },
-    {
-      "id": 4,
-      "title": "SelfSplit Seeker – Rozszczepienie Tożsamości",
-      "hook": "Ilu ciebie nosisz w sobie?",
-      "pitch": "Brutalna analiza momentu, w którym człowiek pęka na pół — i uczy się żyć jako całość."
-    },
-    {
-      "id": 5,
-      "title": "ReligioSeeker – Droga Bez Religii",
-      "hook": "Nie szukaj Boga — znajdź siebie.",
-      "pitch": "Zbiór reguł duchowości, która nie potrzebuje dogmatów, by działać jak żywy ogień."
-    },
-    {
-      "id": 6,
-      "title": "BioSeeker – Sekret Biologii Pola",
-      "hook": "Twoje ciało wie więcej niż twoja głowa.",
-      "pitch": "Anatomia biologii, która odpowiada na sygnały pola, zanim ty zrozumiesz, że coś się zmienia."
-    },
-    {
-      "id": 7,
-      "title": "BólSeeker – Anatomia Rany",
-      "hook": "Ból nie przychodzi po to, by cię złamać.",
-      "pitch": "Księga bólu jako architekta — pokazująca, że najgłębsze rany są wejściami do twojego prawdziwego fundamentu."
-    },
-    {
-      "id": 8,
-      "title": "EterSeeker – Architektura Woli",
-      "hook": "Wola to nie życzenie — to broń.",
-      "pitch": "System tworzenia rzeczywistości na twoich zasadach, bez proszenia świata o zgodę."
-    },
-    {
-      "id": 9,
-      "title": "EterSeeker – Księga Woli",
-      "hook": "Światło ma strukturę — i nosisz ją w sobie.",
-      "pitch": "Najczystszy zapis tego, jak działa wola, kiedy łączy się z polem i zmienia trajektorię twojego życia."
-    },
-    {
-      "id": 10,
-      "title": "WolaSeeker – Kwant Woli",
-      "hook": "Jeden impuls potrafi przestawić cały wszechświat.",
-      "pitch": "Księga o tym, jak działa mikrosygnał, który decyduje, czy twoje życie rośnie, czy gaśnie."
-    },
-    {
-      "id": 11,
-      "title": "NaukoSeeker – Mechanika Pola",
-      "hook": "Nauka nie wyjaśnia pola — pole wyjaśnia naukę.",
-      "pitch": "Odsłonięcie kwantowej architektury, która stoi za każdym zjawiskiem twojego życia."
-    },
-    {
-      "id": 12,
-      "title": "InterfejsSeeker – Interfejs Świadomości",
-      "hook": "Twoja świadomość to system operacyjny — tylko nikt ci o tym nie powiedział.",
-      "pitch": "Podręcznik do tego, jak człowiek łączy się z rzeczywistością szybciej niż zdąży pomyśleć."
-    },
-    {
-      "id": 13,
-      "title": "SplatanieSeeker – Protokół Obserwatora",
-      "hook": "To, że patrzysz — zmienia wszystko.",
-      "pitch": "Księga o splątaniu: co się dzieje, kiedy twoja świadomość zaczyna wpływać na wynik zdarzeń."
-    },
-    {
-      "id": 14,
-      "title": "QuantumSeeker – Fizyka Duszy",
-      "hook": "Twoja dusza ma własną fizykę.",
-      "pitch": "Metafizyka poszerzona: jak działa świadomość, kiedy wychodzi poza granice ciała."
-    },
-    {
-      "id": 15,
-      "title": "ObfitoSeeker – Kod Obfitości",
-      "hook": "Brak to tylko złe oprogramowanie.",
-      "pitch": "System przepisywania pola tak, by pieniądze, szanse i relacje zaczęły działać na twoją korzyść."
-    },
-    {
-      "id": 16,
-      "title": "ObfitoSeeker II – Kod Rozszerzony",
-      "hook": "Obfitość nie kończy się na tobie.",
-      "pitch": "Zaawansowana wersja kodu — jak tworzyć przepływ, który skaluje się na cały twój świat."
-    },
-    {
-      "id": 17,
-      "title": "MateriaSeeker – Przewodnik Ciała i Przepływu",
-      "hook": "Twoje ciało jest anteną.",
-      "pitch": "Księga o tym, jak materia odpowiada na sygnały pola i jak świadomie sterować własną fizycznością."
-    },
-    {
-      "id": 18,
-      "title": "Mutoseeker – Kod Mutacji",
-      "hook": "Ewolucja zaczyna się od decyzji.",
-      "pitch": "Przewodnik do świadomej mutacji — jak zmieniać siebie, zanim zmusi cię do tego życie."
-    },
-    {
-      "id": 19,
-      "title": "TrajektoriaSeeker – Mapa Linii Życia",
-      "hook": "Twoje życie // ===== RESZTA FUNKCJI — z drobnymi ulepszeniami (lepsze wyszukiwanie, toast, etc.) =====
-    },
-    {
-      "id": 20,
-      "title": "DrogaSeeker – Kod Przemiany Człowieka",
-      "hook": "Przemiana nie boli — opór boli.",
-      "pitch": "Algorytm przejścia między wersjami siebie, krok po kroku, bez duchowej ściemy."
-    },
-    {
-      "id": 21,
-      "title": "RytmSeeker – Mechanika Ruchu Życia",
-      "hook": "Życie ma własny rytm — albo go słyszysz, albo giniesz w hałasie.",
-      "pitch": "Księga o tym, jak wejść w puls rzeczywistości i przestać działać pod prąd własnego pola."
-    },
-    {
-      "id": 22,
-      "title": "ConscienceSeeker – Kartografia Sumienia",
-      "hook": "Twoje sumienie to mapa, nie kara.",
-      "pitch": "Jak czytać wewnętrzny kompas tak, by przestać gubić się między winą a prawdą."
-    },
-    {
-      "id": 23,
-      "title": "ArchetypSeeker – System Archetypów Eteru",
-      "hook": "Nie jesteś sobą — jesteś archetypem, który próbuje się obudzić.",
-      "pitch": "Przewodnik po ukrytych wzorcach, które sterują decyzjami, relacjami i całym twoim życiem."
-    },
-    {
-      "id": 24,
-      "title": "ZwierzSeeker – Atlas Zwierząt Eterycznych",
-      "hook": "Zwierzęta nie patrzą przypadkiem.",
-      "pitch": "System rozszyfrowywania sygnałów od natury, które mówią ci, co masz zrobić TERAZ."
-    },
-    {
-      "id": 25,
-      "title": "PustkaSeeker – Kartografia Ciszy",
-      "hook": "Cisza nie jest pustką. Cisza jest bramą.",
-      "pitch": "Księga o tym, jak przestać uciekać przed wewnętrzną próżnią i zacząć z niej budować."
-    },
-    {
-      "id": 26,
-      "title": "CzasSeeker – Fizyka Linii Czasu",
-      "hook": "Czas nie płynie — czas reaguje.",
-      "pitch": "Jak działa percepcja czasu, dlaczego życie przyspiesza lub zwalnia i jak wpływać na własną linię czasu."
-    },
-    {
-      "id": 27,
-      "title": "PoleSeeker – Topologia Ludzkiego Pola",
-      "hook": "Nie masz aury. Masz system.",
-      "pitch": "Kompletny model tego, jak wygląda i jak działa pole człowieka — w nauce, w psychice i w eterze."
-    },
-    {
-      "id": 28,
-      "title": "SenSeeker – Mechanika Snów",
-      "hook": "Twoje sny nie kłamią — Ty je źle tłumaczysz.",
-      "pitch": "Jak czytać sny jako komunikaty z głębszego poziomu świadomości i używać ich jak GPS duszy."
-    },
-    {
-      "id": 29,
-      "title": "FuturSeeker – Przyszłość, która nadchodzi",
-      "hook": "Przyszłość ostrzega wcześniej niż myślisz.",
-      "pitch": "Księga o tym, jak realnie działa intuicja przyszłościowa i dlaczego niektóre sceny życia widzisz, zanim się wydarzą."
-    },
-    {
-      "id": 30,
-      "title": "OjciecSeeker – Architektura Relacji Ojciec–Dziecko",
-      "hook": "Ojcostwo to nie rola. To kod.",
-      "pitch": "Księga o tym, jak zmienia się mężczyzna, kiedy naprawdę zaczyna wracać do swojego dziecka — i do siebie."
-    },
-    {
-      "id": 41,
-      "title": "LineSeeker — Kartografia Linii Życia",
-      "hook": "Twoje życie ma więcej ścieżek, niż kiedykolwiek wybierzesz.",
-      "pitch": "System, który pokazuje, gdzie skręciłeś — i gdzie jeszcze możesz wejść."
-    },
-    {
-      "id": 42,
-      "title": "RootSeeker — Anatomia Początku",
-      "hook": "Nie możesz zmienić przyszłości, dopóki nie poznasz swojego początku.",
-      "pitch": "Przewodnik po źródłach twojej tożsamości, które ciągle piszą twoje decyzje."
-    },
-    {
-      "id": 43,
-      "title": "PulseSeeker — Rytm Wewnętrzny",
-      "hook": "Twoje serce wie szybciej niż twój umysł.",
-      "pitch": "Nauka słuchania mikroimpulsów, które wyprzedzają wydarzenia."
-    },
-    {
-      "id": 44,
-      "title": "SignalSeeker — Język Synchronizacji",
-      "hook": "Świat do ciebie mówi. Ty przestałeś odpowiadać.",
-      "pitch": "Księga dekodująca znaki pojawiające się w najmniej logicznych momentach."
-    },
-    {
-      "id": 45,
-      "title": "BreakSeeker — Punkt Złamania",
-      "hook": "Każdy ma moment, którego już nie uniesie.",
-      "pitch": "Mapa miejsca, gdzie człowiek pęka — i gdzie może się odbudować."
-    },
-    {
-      "id": 46,
-      "title": "StormSeeker — Sezon Burz",
-      "hook": "Są burze, które nie chcą cię zniszczyć. Chcą cię zresetować.",
-      "pitch": "Przewodnik po czasach życiowych turbulencji."
-    },
-    {
-      "id": 47,
-      "title": "ThresholdSeeker — Próg Zmiany",
-      "hook": "Największy strach pojawia się sekundę przed skokiem.",
-      "pitch": "Instrukcja przechodzenia przez momenty, które decydują o całej przyszłości."
-    },
-    {
-      "id": 48,
-      "title": "RiftSeeker — Pęknięcia Rzeczywistości",
-      "hook": "Czasem świat rozrywa się, żeby pokazać ci drogę.",
-      "pitch": "Analiza momentów, w których dotychczasowy system przestaje działać."
-    },
-    {
-      "id": 49,
-      "title": "UnderSeeker — Podświadomość, która steruje tobą",
-      "hook": "To, czego nie widzisz, kieruje tobą najmocniej.",
-      "pitch": "Wejście do warstw psychiki, które od lat piszą ci scenariusze."
-    },
-    {
-      "id": 50,
-      "title": "SkySeeker — Architektura Przyszłości",
-      "hook": "Przyszłość nie spada z nieba. Ty ją wynosisz.",
-      "pitch": "Księga budowania wizji, która nie pęka po tygodniu."
-    },
-    {
-      "id": 51,
-      "title": "TorchSeeker — Ogień, Który Cię Niesie",
-      "hook": "Wewnętrzny ogień nie gaśnie. On czeka na instrukcję.",
-      "pitch": "Jak aktywować energię, która zmienia trajektorie."
-    },
-    {
-      "id": 52,
-      "title": "EchoSeeker — Odbicia Przeszłości",
-      "hook": "Każda decyzja wraca. Nawet ta, o której zapomniałeś.",
-      "pitch": "Mechanika powrotów i powtarzających się wydarzeń."
-    },
-    {
-      "id": 53,
-      "title": "MirrorSeeker — Twoje Prawdziwe Odbicie",
-      "hook": "Ludzie to lustra. Pokażą ci wszystko, czego nie chcesz widzieć.",
-      "pitch": "Księga relacji jako systemu diagnostycznego."
-    },
-    {
-      "id": 54,
-      "title": "PathSeeker — Ścieżki Prawdopodobieństw",
-      "hook": "Twoje życie nie jest linią. To fraktal.",
-      "pitch": "Analiza wyborów, które mnożą wersje ciebie."
-    },
-    {
-      "id": 55,
-      "title": "ShiftSeeker — Zmiana Toru",
-      "hook": "Jedna decyzja przesuwa cały świat.",
-      "pitch": "Instrukcja przełączania się na alternatywne linie życia."
-    },
-    {
-      "id": 56,
-      "title": "BurnSeeker — Oczyszczenie przez Ogień",
-      "hook": "Czasem musisz spłonąć, żeby zobaczyć, co było prawdziwe.",
-      "pitch": "O mądrości strat i o tym, co zostaje po ogniu."
-    },
-    {
-      "id": 57,
-      "title": "GuardSeeker — Strażnik Woli",
-      "hook": "Twoją wolę trzeba chronić jak serce.",
-      "pitch": "System obrony przed manipulacją, presją i drenowaniem energii."
-    },
-    {
-      "id": 58,
-      "title": "OriginCode — Kod Początku",
-      "hook": "Każdy człowiek nosi w sobie własny alfabet Wszechświata.",
-      "pitch": "Odkrywanie pierwotnego kodu, który steruje twoją energią."
-    },
-    {
-      "id": 59,
-      "title": "FluxSeeker — Przepływ, który wszystko zmienia",
-      "hook": "Gdy przepływ wraca — życie zaczyna współpracować.",
-      "pitch": "Nauka pracy z energią w sposób skuteczny, nie magiczny."
-    },
-    {
-      "id": 60,
-      "title": "DepthSeeker — Warstwy, Które Ukrywasz",
-      "hook": "Prawdziwa zmiana zaczyna się tam, gdzie boisz się spojrzeć.",
-      "pitch": "Księga głębokiej introspekcji."
-    },
-    {
-      "id": 61,
-      "title": "AxisSeeker — Oś, na której stoisz",
-      "hook": "Gdy zgubisz oś — zgubisz siebie.",
-      "pitch": "Jak zbudować wewnętrzny stabilizator."
-    },
-    {
-      "id": 62,
-      "title": "FieldSeeker — Pole, które Cię Tworzy",
-      "hook": "Nie jesteś samodzielny. Jesteś splątany.",
-      "pitch": "O związkach między twoim polem a polem ludzi wokół."
-    },
-    {
-      "id": 63,
-      "title": "CodeSeeker — Reprogramowanie Tożsamości",
-      "hook": "To, kim jesteś, jest tylko wersją. Możesz mieć nowszą.",
-      "pitch": "Narzędzia zmiany tożsamości na poziomie energetycznym."
-    },
-    {
-      "id": 64,
-      "title": "PulseCode — Język Częstotliwości",
-      "hook": "Twoja częstotliwość decyduje, kogo i co przyciągasz.",
-      "pitch": "Nauka pracy z rytmem energetycznym."
-    },
-    {
-      "id": 65,
-      "title": "FractureCode — Kiedy System Się Łamie",
-      "hook": "Pęknięcie nie jest końcem. Jest przejściem.",
-      "pitch": "Analiza życiowych kryzysów jako portali."
-    },
-    {
-      "id": 66,
-      "title": "CatalystSeeker — Zapłon Zmiany",
-      "hook": "Wystarczy jeden impuls, żeby zapalić cały nowy świat.",
-      "pitch": "O ludziach, zdarzeniach i myślach, które uruchamiają transformację."
-    },
-    {
-      "id": 67,
-      "title": "HorizonSeeker — Daleki Wymiar Życia",
-      "hook": "Twoje życie ma horyzont, którego jeszcze nie widzisz.",
-      "pitch": "Księga poszerzania percepcji."
-    },
-    {
-      "id": 68,
-      "title": "PulseWar — Wojny Energetyczne",
-      "hook": "Największe bitwy to te, które toczysz, zanim cokolwiek się wydarzy.",
-      "pitch": "Jak chronić energię i nie tracić mocy w interakcjach."
-    },
-    {
-      "id": 69,
-      "title": "FractalSeeker — Wzór, który powtarzasz",
-      "hook": "Powtarzasz go nie dlatego, że chcesz — tylko dlatego, że nie widzisz.",
-      "pitch": "Księga destrukcyjnych i twórczych fraktali twojego życia."
-    },
-    {
-      "id": 70,
-      "title": "CoreShift — Przesunięcie Rdzenia",
-      "hook": "Gdy rdzeń się zmienia — zmienia się wszystko.",
-      "pitch": "Instrukcja pełnej metamorfozy od środka."
-    },
-    {
-      "id": 71,
-      "title": "SoulGrid — Sieć Duszy",
-      "hook": "Jesteś w sieci, o której nigdy ci nie powiedziano.",
-      "pitch": "O połączeniach duchowych, które wpływają na twoje życie."
-    },
-    {
-      "id": 72,
-      "title": "BreathCode — Kod Oddechu",
-      "hook": "Oddech jest kluczem, o którym zapomniałeś.",
-      "pitch": "Nauka kontrolowania energii przez rytm oddechu."
-    },
-    {
-      "id": 73,
-      "title": "PathBreaker — Ten, który łamie linię rodu",
-      "hook": "Jeśli nie ty — to nikt.",
-      "pitch": "Księga o tym, jak zatrzymać przeklęte rodowe wzory."
-    },
-    {
-      "id": 74,
-      "title": "FlameSeeker — Ogień Transformacji",
-      "hook": "Z popiołu też można wstać.",
-      "pitch": "Przewodnik w momentach upadku."
-    },
-    {
-      "id": 75,
-      "title": "ShadowCode — Język Mroku",
-      "hook": "Cień mówi. Ty nie słuchasz.",
-      "pitch": "Zaawansowana praca z cieniem."
-    },
-    {
-      "id": 76,
-      "title": "SpineSeeker — Kręgosłup Woli",
-      "hook": "Bez kręgosłupa nie ma decyzji.",
-      "pitch": "Księga o sile charakteru."
-    },
-    {
-      "id": 77,
-      "title": "FieldBreak — Kiedy Pole się Resetuje",
-      "hook": "Reset nie niszczy. Reset uwalnia.",
-      "pitch": "O życiowych restartach."
-    },
-    {
-      "id": 78,
-      "title": "LightForge — Kuźnia Światła",
-      "hook": "Światło nie przychodzi. Światło się wytwarza.",
-      "pitch": "Jak budować moc wewnętrzną od zera."
-    },
-    {
-      "id": 79,
-      "title": "GridSeeker — Mapa Połączeń",
-      "hook": "Jesteś w sieci, która zna każdą twoją decyzję.",
-      "pitch": "Analiza niewidzialnych struktur relacji."
-    },
-    {
-      "id": 80,
-      "title": "SilenceForge — Kuźnia Ciszy",
-      "hook": "Cisza jest technologią.",
-      "pitch": "Jak wyciszenie tworzy nowe linie życia."
-    }
-  ]
-}
-<<<
-
-  init();
+  // init
+  render();
 </script>
 </body>
 </html>
